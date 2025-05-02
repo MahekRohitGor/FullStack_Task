@@ -4,6 +4,8 @@ const admin = (app) => {
     app.post("/v1/admin/login", admins.login);
     app.post("/v1/admin/create-product", admins.create_products);
     app.post("/v1/admin/edit-prod", admins.edit_products);
+
+    app.get("/v1/admin/products", admins.product_listing);
 }
 
 module.exports = admin;

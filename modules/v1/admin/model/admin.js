@@ -169,6 +169,68 @@ class AdminModel {
             }
         }
     }
+
+    async product_listing() {
+            try {
+                const [products] = await database.query(`SELECT p.product_id, p.product_name, p.product_price, pi.image_name,c.category_name FROM tbl_products p left JOIN tbl_product_images pi ON p.product_id = pi.product_id left join tbl_category c on c.category_id = p.category_id where p.is_deleted = 0;`);
+    
+                if (products && products != null && Array.isArray(products) && products.length > 0) {
+                    return {
+                        code: response_code.SUCCESS,
+                        message: "Products Found",
+                        data: products
+                    }
+    
+                } else {
+                    return {
+                        code: response_code.NOT_FOUND,
+                        message: "Products Not Found",
+                        data: null
+                    }
+                }
+    
+            } catch (error) {
+                console.log(error.message);
+                return {
+                    code: response_code.OPERATION_FAILED,
+                    message: "Internal Server Error",
+                    data: null
+                }
+            }
+    }
+
+    async delete_product(request_data){
+        try{
+            if(!request_data.product_id){
+                return {
+                    code: response_code.OPERATION_FAILED,
+                    message: t('no_product_id_provided'),
+                    data: null
+                }
+            } else{
+                const data = await common.get_products_info(request_data.product_id);
+                
+                if(data){
+                    const [res] = await database.query(`UPDATE tbl_products SET is_deleted = 1 where product_id = ?`, [request_data.product_id]);
+
+                } else{
+                    return {
+                        code: response_code.NOT_FOUND,
+                        message: t('product_already_deleted'),
+                        data: null
+                    }
+                }
+            }
+
+        } catch(error){
+            console.log(error.message);
+                return {
+                    code: response_code.OPERATION_FAILED,
+                    message: "Internal Server Error",
+                    data: null
+                }
+        }
+    }
 }
 
 module.exports = new AdminModel();

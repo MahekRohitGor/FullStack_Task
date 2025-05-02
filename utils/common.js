@@ -322,6 +322,19 @@ class Common {
         }
     }
 
+    async get_products_info(product_id){
+        try{
+            const [data] = await database.query(`SELECT product_id, product_name, product_description, product_price from tbl_products where product_id = ?`, [product_id]);
+            if(data && Array.isArray(data) && data.length > 0){
+                return data[0];
+            } else{
+                return false;
+            }
+        } catch(error){
+            console.log(error.message);
+            return false;
+        }
+    }
 
 }
 

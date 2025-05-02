@@ -110,6 +110,21 @@ class Admin {
             );
         }
     }
+
+     async product_listing(req, res) {
+            try {
+                const response = await admin.product_listing();
+                await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+            } catch (error) {
+                console.error("Get Order Error:", error.message);
+                return common.sendEncryptedResponse(
+                    res,
+                    response_code.INTERNAL_SERVER_ERROR,
+                    t("internal_server_error") || "Something went wrong, please try again later.",
+                    {}
+                );
+            }
+        }
 }
 
 module.exports = new Admin();
