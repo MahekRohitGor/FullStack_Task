@@ -228,6 +228,40 @@ class User {
         }
     }
 
+    async edit_profile(req,res){
+        try{
+            const requested_data = req.body;
+            const user_id = req.owner_id;
+            const request_data = common.decrypt(requested_data);
+
+            const rules = vrules.edit_profile;
+            const message = {
+                string: t('must_be_string')
+            };
+
+            const keywords = {
+                'full_name': t('rest_keywords_full_name'),
+                'about': t('rest_keywords_about'),
+                'profile_pic': t('rest_keywords_profile_pic')
+            };
+
+            const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+            if (!isValid) return;
+
+            const response = await user.edit_profile(request_data, user_id);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+
+        } catch (error) {
+            console.error("Edit Profile Error:", error);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
 }
 
 module.exports = new User();

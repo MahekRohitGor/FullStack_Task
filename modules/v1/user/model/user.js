@@ -617,7 +617,52 @@ class UserModel {
         }
     }
 
-    
+    async edit_profile(request_data, user_id){
+        try{
+            const updated_fields = {};
+            if(request_data.full_name){
+                updated_fields.full_name = request_data.full_name;
+            }
+            if(request_data.profile_pic){
+                updated_fields.profile_pic = request_data.profile_pic;
+            }
+            if(request_data.about){
+                updated_fields.about = request_data.about;
+            }
+
+            if(Object.keys(updated_fields) === 0){
+                return {
+                    code: response_code.OPERATION_FAILED,
+                    message: t("no_data_provided_for_update"),
+                    data: null
+                }
+            } else{
+                const [upated_user] = await database.query(`UPDATE tbl_user SET ? where user_id = ?`, [updated_fields, user_id]);
+
+                if(upated_user.affectedRows > 0){
+                    return {
+                        code: response_code.SUCCESS,
+                        message: t('update_user_success'),
+                        data: user_id
+                    }
+                } else{
+                    return {
+                        code: response_code.OPERATION_FAILED,
+                        message: t('update_user_failed'),
+                        data: null
+                    }
+                }
+            }
+
+        } catch(error){
+            console.log(error.message);
+            return {
+                code: response_code.OPERATION_FAILED,
+                message: "Internal Server Error",
+                data: null
+            }
+        }
+    }
 }
 
 module.exports = new UserModel();

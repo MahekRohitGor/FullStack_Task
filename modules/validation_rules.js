@@ -26,8 +26,12 @@ const rules = {
     place_order: {
         payment_type: "required|string|in:cod,debit,credit",
         address_id: "required|integer"
+    },
+    edit_profile: {
+        full_name: "string",
+        profile_pic: "string",
+        about: "string"
     }
-    
 }
 
 module.exports = rules;

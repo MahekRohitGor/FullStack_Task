@@ -23,14 +23,14 @@ function decrypt(encrypted) {
 // }`);
 
 const encrypted = encrypt(`{
-  "page": 1,
-  "search": "app",
-  "max_price": 500000
+    "full_name": "Mahek Goorrrr",
+    "profile_pic": "mahek_profile.jpg",
+    "about": "Passionate developer and designer."
 }
 `);
 
 
-const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea70730c78bc59823e98b79cfb97ad90a2433506eb23db6f9afe95e7a41ea578870f9bfda4ee0a647ef5c61d6a30b117d85fe8e87e880997b3bb45d40a62f416ad861abdc086c9f8fcc4f21d35f0c112f7b05d854267d1127b077e5487a2d3a88f967159058579e93d0af107618534861ada05f2461c8079466ccf302ac500383cc9e4ef341bcc0fbb181b6ff22b126383f`);
+const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea707ea174ee50e0625f540ccfad04f9bc76cf2c092423929df5cb477d35afeb7ce2ce28ec3ff2bf7db5f4429e0370f2ea7`);
 
 console.log('Encrypted:', encrypted);
 console.log('Decrypted:', decrypted);
