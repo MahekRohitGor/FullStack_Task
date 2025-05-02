@@ -78,7 +78,6 @@ class User {
         try{
             const user_id = req.owner_id;
             const response = await user.logout(user_id);
-            console.log(user_id);
             await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
         } catch(error){
             console.error("LOGOUT Error:", error);
@@ -154,6 +153,21 @@ class User {
 
         } catch (error) {
             console.error("Place Order Error:", error);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
+    async product_listing(req, res) {
+        try {
+            const response = await user.product_listing();
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+        } catch (error) {
+            console.error("Get Order Error:", error.message);
             return common.sendEncryptedResponse(
                 res,
                 response_code.INTERNAL_SERVER_ERROR,

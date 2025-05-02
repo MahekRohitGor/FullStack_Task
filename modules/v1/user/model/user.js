@@ -266,20 +266,6 @@ class UserModel{
         }
     }
 
-    async get_products(){
-        try{
-            
-
-        } catch(error){
-            console.log(error.message);
-            return {
-                code: response_code.OPERATION_FAILED,
-                message: "Internal Server Error",
-                data: null
-            }
-        }
-    }
-
     async addToCart(request_data, user_id){
         try{
             if(!request_data.product_id || request_data.qty <= 0){
@@ -435,6 +421,35 @@ class UserModel{
                     data: null
                 }
             }
+        } catch(error){
+            console.log(error.message);
+            return {
+                code: response_code.OPERATION_FAILED,
+                message: "Internal Server Error",
+                data: null
+            }
+        }
+    }
+
+    async product_listing(){
+        try{
+            const [products] = await database.query(`SELECT p.product_id, p.product_name, p.product_price, pi.image_name,c.category_name FROM tbl_products p left JOIN tbl_product_images pi ON p.product_id = pi.product_id left join tbl_category c on c.category_id = p.category_id;`);
+
+            if(products && products != null && products.length > 0){
+                return {
+                    code: response_code.SUCCESS,
+                    message: "Products Found",
+                    data: products
+                }
+
+            } else{
+                return {
+                    code: response_code.NOT_FOUND,
+                    message: "Products Not Found",
+                    data: null
+                }
+            }
+
         } catch(error){
             console.log(error.message);
             return {
