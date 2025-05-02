@@ -1,0 +1,28 @@
+const { add_to_cart } = require("../../../HLIS/NodeExam27/modules/v1/user/models/user_model");
+
+const rules = {
+    signup: {
+        email_id: "required|email",
+        phone_number: "required|string|min:10|regex:/^[0-9]+$/|max:10",
+        password_: "required|min:8",
+        full_name: "required",
+        code_id: "required"
+    },
+
+    login: {
+        email_id: "required|email",
+        password_: "required"
+    },
+    
+    admin_login:{
+        username: "required",
+        password: "required"
+    },
+
+    add_to_cart:{
+        qty: "required|integer|min:1",
+        product_id: "required|integer"
+    }
+}
+
+module.exports = rules;
