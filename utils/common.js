@@ -207,6 +207,38 @@ class Common {
             return false;
         }
     }
+
+    async insert_into_order(data){
+        try{
+            const [rows] = await database.query(`INSERT INTO tbl_order_details SET ?`, [data]);
+            return rows.affectedRows > 0;
+        } catch(error){
+            console.log(error.message);
+            return false;
+        }
+    }
+
+    generateOrderNum(length){
+        if(length <= 0){
+            throw new Error("Order Number length must be greater than 0");
+        }
+        const digits = '0123456789QWERTYUIOPASDFGHJKLZXCVBNM';
+        let otp = '';
+        for (let i = 0; i < length; i++) {
+            otp += digits[Math.floor(Math.random() * digits.length)];
+        }
+        return otp;
+    }
+
+    async update_order(data){
+        try{
+            const [rows] = await database.query(`UPDATE tbl_order SET ?`, [data]);            
+            return rows.affectedRows > 0;
+        } catch(error){
+            console.log(error.message);
+            return false;
+        }
+    }
 }
 
 module.exports = new Common()

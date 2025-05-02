@@ -22,7 +22,12 @@ const rules = {
     add_to_cart:{
         qty: "required|integer|min:1",
         product_id: "required|integer"
+    },
+    place_order: {
+        payment_type: "required|string|in:cod,debit,credit",
+        address_id: "required|integer"
     }
+    
 }
 
 module.exports = rules;

@@ -349,9 +349,85 @@ class UserModel{
     async place_order(request_data, user_id){
         try{
             const cart_data = await common.get_cart_items(user_id);
-            if(cart_data){
-                
+            let sub_total = 0;
 
+            if(cart_data){
+                const order_num = common.generateOrderNum(8);
+                const order_data = {
+                    order_num: order_num,
+                    user_id: user_id,
+                    status: 'pending'
+                }
+
+                const [result_order] = await database.query(`INSERT INTO tbl_order SET ?`, [order_data]);
+                if(result_order.affectedRows > 0){
+                    const order_id = result_order.insertId;
+
+                    for(const prod of cart_data){
+                        const [price] = await database.query(`SELECT product_price from tbl_products where product_id = ?`, [prod.product_id]);
+                        if(!price || price.length === 0) continue;
+    
+                        const cost = price[0].product_price * prod.qty;
+                        sub_total += cost;
+    
+                        const order_details_data = {
+                            order_id: order_id,
+                            product_id: prod.product_id,
+                            qty: prod.qty,
+                            price: cost
+                        }
+    
+                        const order_details = await common.insert_into_order(order_details_data);
+
+                        if(order_details){
+                            const shipping_charge = 100;
+                            const grand_total = sub_total + shipping_charge;
+
+                            const data_to_update = {
+                                status: 'confirmed',
+                                sub_total: sub_total,
+                                grand_total: grand_total,
+                                shipping_charge: shipping_charge,
+                                payment_type: request_data.payment_type,
+                                address_id: request_data.address_id,
+                            }
+
+                            const resp_order_update = await common.update_order(data_to_update);
+                            if(resp_order_update){
+                                await database.query(`DELETE FROM tbl_cart WHERE user_id = ?`, [user_id]);
+                                return {
+                                    code: response_code.SUCCESS,
+                                    message: t('order_placed_successfully'),
+                                    data: {
+                                        order_id,
+                                        order_num,
+                                        grand_total
+                                    }
+                                };
+
+                            } else{
+                                return {
+                                    code: response_code.OPERATION_FAILED,
+                                    message: t('error_updating_order'),
+                                    data: null
+                                }
+                            }
+
+                        } else{
+                            return {
+                                code: response_code.OPERATION_FAILED,
+                                message: t('error_adding_order_details'),
+                                data: null
+                            }
+                        }
+                    }
+                } else{
+                    return {
+                        code: response_code.OPERATION_FAILED,
+                        message: t('error_adding_order_data'),
+                        data: null
+                    }
+                }
             } else{
                 return {
                     code: response_code.NOT_FOUND,

@@ -18,12 +18,12 @@ function decrypt(encrypted) {
 }
 
 const encrypted = encrypt(`{
-  "product_id": 2,
-  "qty": 4
+  "payment_type": "cod",
+  "address_id": 2
 }`);
 
 
-const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea7ed9d08d231682a16e0ea2c50fd0c500cbc75987ebf32c903c012548fb96fae3c30b05ab014badbdbd563cf62534e725f`);
+const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea724cb2315996bff6a230690c1681e606bd29ad86665185fd1ab13fb6078e07d9e713e9a4fb040e51cd745e0eb036ca072bbe291c94cc8326755dd6a0671ff53f5`);
 
 console.log('Encrypted:', encrypted);
 console.log('Decrypted:', decrypted);
