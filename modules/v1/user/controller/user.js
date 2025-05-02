@@ -177,6 +177,57 @@ class User {
         }
     }
 
+    async product_by_id(req, res) {
+        try {
+            const prod_id = req.params.id;
+            const response = await user.get_product_by_id(prod_id);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+        } catch (error) {
+            console.error("Get Product By ID Error:", error.message);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
+    async filter(req, res) {
+        try {
+            const requested_data = req.body;
+            const request_data = common.decrypt(requested_data);
+
+            const response = await user.prod_filtering(request_data);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+        } catch (error) {
+            console.error("Get Product By ID Error:", error.message);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
+    async user_info(req, res) {
+        try {
+            const user_id = req.owner_id;
+
+            const response = await user.user_information(user_id);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+        } catch (error) {
+            console.error("User Info Fetch Error:", error.message);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
 }
 
 module.exports = new User();

@@ -157,7 +157,7 @@ class Common {
     async get_device_data(user_id){
         try{
             const [result] = await database.query(`SELECT device_type, time_zone, device_token, os_version, app_version from tbl_device_info where user_id = ?`, [user_id]);
-            if(result && result.length > 0 && Array.isArray(result)){
+            if(result && Array.isArray(result) && result.length > 0){
                 return result[0];
             } else{
                 return false;
@@ -230,15 +230,37 @@ class Common {
         return otp;
     }
 
-    async update_order(data){
+    async update_order(order_id, data){
         try{
-            const [rows] = await database.query(`UPDATE tbl_order SET ?`, [data]);            
+            const [rows] = await database.query(`UPDATE tbl_order SET ? where order_id = ?`, [data, order_id]);            
             return rows.affectedRows > 0;
         } catch(error){
             console.log(error.message);
             return false;
         }
     }
+
+    async get_order_details(user_id){
+        try{
+            const [result] = await database.query(`select o.order_id, o.order_num, o.sub_total, 
+            o.shipping_charge, o.grand_total, 
+            o.status, o.payment_type, 
+            a.address_line, a.city, a.state, a.pincode, a.country
+            from tbl_order o inner join tbl_user_delivery_address a on a.address_id = o.address_id where o.user_id = ?;`, [user_id]);
+
+            if(result && Array.isArray(result) && result.length > 0){
+                return result;
+            } else{
+                return false;
+            }
+
+        } catch(error){
+            console.log(error.message);
+            return false;
+        }
+    }
+
+
 }
 
 module.exports = new Common()

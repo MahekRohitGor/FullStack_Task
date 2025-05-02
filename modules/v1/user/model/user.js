@@ -13,13 +13,14 @@ const { t } = require('localizify');
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const moment = require('moment');
+const { response } = require("../../../../../../HLIS/NodeExam27/utilities/common");
 
 
-class UserModel{
-    async signup(request_data){
-        try{
+class UserModel {
+    async signup(request_data) {
+        try {
             const checkEmailUnique = await common.check_email(request_data.email_id);
-            if(checkEmailUnique){
+            if (checkEmailUnique) {
                 const signup_data = {
                     full_name: request_data.full_name,
                     email_id: request_data.email_id,
@@ -31,15 +32,15 @@ class UserModel{
                 }
                 const [data] = await database.query(`INSERT INTO tbl_user SET ?`, [signup_data]);
 
-                if(!data.insertId){
+                if (!data.insertId) {
                     return {
                         code: response_code.OPERATION_FAILED,
                         message: t('user_register_failed'),
                         data: null
                     }
-                } else{
+                } else {
                     const user_id = data.insertId;
-                    const user_token = jwt.sign({user_id: user_id}, process.env.JWT_SECRET, {expiresIn: '1d'});
+                    const user_token = jwt.sign({ user_id: user_id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
                     const device_data = {
                         user_id,
@@ -51,7 +52,7 @@ class UserModel{
                     }
 
                     const deviceInsertRes = await common.insert_device(device_data);
-                    if(deviceInsertRes){
+                    if (deviceInsertRes) {
                         const otp_data = {
                             user_id: user_id,
                             verify_with: request_data.verify_with,
@@ -60,9 +61,9 @@ class UserModel{
 
                         const otp_insert = await common.insert_into_otp(otp_data);
 
-                        if(otp_insert){
+                        if (otp_insert) {
                             const user_info = await common.get_user_info(user_id);
-                            if(user_info){
+                            if (user_info) {
                                 const response_data = {
                                     userInfo: user_info,
                                     user_token: user_token
@@ -70,26 +71,26 @@ class UserModel{
 
                                 return {
                                     code: response_code.SUCCESS,
-                                    message: "Signup successfully" ,
+                                    message: "Signup successfully",
                                     data: response_data
                                 };
 
-                            } else{
+                            } else {
                                 return {
                                     code: response_code.OPERATION_FAILED,
-                                    message: "error_while_signup" ,
+                                    message: "error_while_signup",
                                     data: null
                                 };
                             }
-                        } else{
+                        } else {
                             return {
                                 code: response_code.OPERATION_FAILED,
-                                message: "error_while_sending_otp" ,
+                                message: "error_while_sending_otp",
                                 data: null
                             };
                         }
 
-                    } else{
+                    } else {
                         return {
                             code: response_code.OPERATION_FAILED,
                             message: t('device_insert_failed'),
@@ -98,7 +99,7 @@ class UserModel{
                     }
                 }
 
-            } else{
+            } else {
                 return {
                     code: response_code.OPERATION_FAILED,
                     message: t('email_already_exists'),
@@ -106,7 +107,7 @@ class UserModel{
                 }
             }
 
-        } catch(error){
+        } catch (error) {
             console.log(error.message);
             return {
                 code: response_code.OPERATION_FAILED,
@@ -116,28 +117,28 @@ class UserModel{
         }
     }
 
-    async login(request_data){
-        try{
+    async login(request_data) {
+        try {
             const not_existing_user = await common.check_email(request_data.email_id);
 
-            if(not_existing_user){
+            if (not_existing_user) {
                 return {
                     code: response_code.SUCCESS,
                     message: t('invalid_email'),
                     data: null
                 }
-            } else{
+            } else {
                 const userDetails = await common.getUser(request_data.email_id);
 
-                if(bcrypt.compareSync(request_data.password_, userDetails.password_)){
-                    if(userDetails.is_active == 1){
+                if (bcrypt.compareSync(request_data.password_, userDetails.password_)) {
+                    if (userDetails.is_active == 1) {
                         const user_token = jwt.sign(
                             { id: userDetails.user_id },
                             process.env.JWT_SECRET,
                             { expiresIn: '1d' }
                         );
                         console.log(user_token);
-    
+
                         // let insert_device = {
                         //     user_id: userDetails.user_id,
                         //     device_token: request_data.device_token,
@@ -146,16 +147,16 @@ class UserModel{
                         //     ...(request_data.os_version != undefined && request_data.os_version != "") && { os_version: request_data.os_version },
                         //     ...(request_data.app_version != undefined && request_data.app_version != "") && { app_version: request_data.app_version }
                         // };
-    
+
                         // await common.insert_device(insert_device);
-    
+
                         let update_data = {
                             last_login: moment().utc().format('YYYY-MM-DD HH:mm:ss'),
                             is_login: 1
                         };
-    
+
                         const updated_data = await common.updateUserData(userDetails.user_id, update_data);
-                        if(updated_data){
+                        if (updated_data) {
                             const userInfo = await common.get_user_info(userDetails.user_id);
                             const response_data = {
                                 userInfo: userInfo,
@@ -167,8 +168,8 @@ class UserModel{
                                 message: 'login_success',
                                 data: response_data
                             };
-                        
-                        } else{
+
+                        } else {
                             return {
                                 code: response_code.OPERATION_FAILED,
                                 message: t('error_updating_data'),
@@ -176,7 +177,7 @@ class UserModel{
                             }
                         }
 
-                    } else{
+                    } else {
                         return {
                             code: response_code.OPERATION_FAILED,
                             message: t('inactive_account'),
@@ -184,7 +185,7 @@ class UserModel{
                         }
                     }
 
-                } else{
+                } else {
                     return {
                         code: response_code.OPERATION_FAILED,
                         message: t('invalid_password'),
@@ -193,7 +194,7 @@ class UserModel{
                 }
             }
 
-        } catch(error){
+        } catch (error) {
             console.log(error.message);
             return {
                 code: response_code.OPERATION_FAILED,
@@ -203,12 +204,12 @@ class UserModel{
         }
     }
 
-    async logout(user_id){
-        try{
+    async logout(user_id) {
+        try {
             const user_data = await common.get_user_info(user_id);
-            if(user_data){
+            if (user_data) {
                 const device_data = await common.get_device_data(user_id);
-                if(device_data){
+                if (device_data) {
                     const updated_device_data = {
                         device_type: null,
                         time_zone: "",
@@ -218,37 +219,37 @@ class UserModel{
                     }
 
                     const [result] = await database.query(`UPDATE tbl_device_info SET ? where user_id = ?`, [updated_device_data, user_id]);
-                    if(result.affectedRows > 0){
+                    if (result.affectedRows > 0) {
                         const [data] = await database.query(`UPDATE tbl_user set is_login = 0 where user_id = ?`, [user_id]);
-                        if(data.affectedRows > 0){
-                            return{
+                        if (data.affectedRows > 0) {
+                            return {
                                 code: response_code.SUCCESS,
                                 message: "Logout Success",
                                 data: user_id
                             }
-                        } else{
-                            return{
+                        } else {
+                            return {
                                 code: response_code.OPERATION_FAILED,
                                 message: "Failed to Update User Login Status",
                                 data: null
                             }
                         }
-                    } else{
-                        return{
+                    } else {
+                        return {
                             code: response_code.OPERATION_FAILED,
                             message: "Device details update failed",
                             data: null
                         }
                     }
 
-                } else{
+                } else {
                     return {
                         code: response_code.NOT_FOUND,
                         message: "Device Data Not Found",
                         data: null
                     }
                 }
-            } else{
+            } else {
                 return {
                     code: response_code.NOT_FOUND,
                     message: "User Not Found",
@@ -256,7 +257,7 @@ class UserModel{
                 }
             }
 
-        } catch(error){
+        } catch (error) {
             console.log(error.message);
             return {
                 code: response_code.OPERATION_FAILED,
@@ -266,30 +267,30 @@ class UserModel{
         }
     }
 
-    async addToCart(request_data, user_id){
-        try{
-            if(!request_data.product_id || request_data.qty <= 0){
+    async addToCart(request_data, user_id) {
+        try {
+            if (!request_data.product_id || request_data.qty <= 0) {
                 return {
                     code: response_code.BAD_REQUEST,
                     message: "No Products provided to add to cart or invalid quantity",
                     data: null
                 }
-            } else{
+            } else {
                 const checkCart = await common.check_cart_item(request_data.product_id, user_id);
-                if(checkCart){
+                if (checkCart) {
                     const data = {
                         qty: request_data.qty,
                         user_id: user_id,
                         product_id: request_data.product_id
                     }
                     const update_cart = await common.update_cart(data);
-                    if(update_cart){
+                    if (update_cart) {
                         return {
                             code: response_code.SUCCESS,
                             message: "Add to cart Success (Quantity Updated Successfully)",
                             data: request_data.product_id
                         }
-                    }else{
+                    } else {
                         return {
                             code: response_code.OPERATION_FAILED,
                             message: "Failed to Update Qty",
@@ -297,7 +298,7 @@ class UserModel{
                         }
                     }
 
-                } else{
+                } else {
                     const cart_obj = {
                         user_id: user_id,
                         product_id: request_data?.product_id,
@@ -306,13 +307,13 @@ class UserModel{
 
                     const [result] = await database.query(`INSERT INTO tbl_cart SET ?`, [cart_obj]);
 
-                    if(result.affectedRows > 0){
+                    if (result.affectedRows > 0) {
                         return {
                             code: response_code.SUCCESS,
                             message: "Add to cart Success",
                             data: request_data.product_id
                         }
-                    } else{
+                    } else {
                         return {
                             code: response_code.OPERATION_FAILED,
                             message: "Failed to Add to Cart",
@@ -321,8 +322,8 @@ class UserModel{
                     }
                 }
             }
-            
-        } catch(error){
+
+        } catch (error) {
             console.log(error.message);
             return {
                 code: response_code.OPERATION_FAILED,
@@ -332,12 +333,12 @@ class UserModel{
         }
     }
 
-    async place_order(request_data, user_id){
-        try{
+    async place_order(request_data, user_id) {
+        try {
             const cart_data = await common.get_cart_items(user_id);
             let sub_total = 0;
 
-            if(cart_data){
+            if (cart_data) {
                 const order_num = common.generateOrderNum(8);
                 const order_data = {
                     order_num: order_num,
@@ -346,26 +347,26 @@ class UserModel{
                 }
 
                 const [result_order] = await database.query(`INSERT INTO tbl_order SET ?`, [order_data]);
-                if(result_order.affectedRows > 0){
+                if (result_order.affectedRows > 0) {
                     const order_id = result_order.insertId;
 
-                    for(const prod of cart_data){
+                    for (const prod of cart_data) {
                         const [price] = await database.query(`SELECT product_price from tbl_products where product_id = ?`, [prod.product_id]);
-                        if(!price || price.length === 0) continue;
-    
+                        if (!price || price.length === 0) continue;
+
                         const cost = price[0].product_price * prod.qty;
                         sub_total += cost;
-    
+
                         const order_details_data = {
                             order_id: order_id,
                             product_id: prod.product_id,
                             qty: prod.qty,
                             price: cost
                         }
-    
+
                         const order_details = await common.insert_into_order(order_details_data);
 
-                        if(order_details){
+                        if (order_details) {
                             const shipping_charge = 100;
                             const grand_total = sub_total + shipping_charge;
 
@@ -378,8 +379,8 @@ class UserModel{
                                 address_id: request_data.address_id,
                             }
 
-                            const resp_order_update = await common.update_order(data_to_update);
-                            if(resp_order_update){
+                            const resp_order_update = await common.update_order(order_id, data_to_update);
+                            if (resp_order_update) {
                                 await database.query(`DELETE FROM tbl_cart WHERE user_id = ?`, [user_id]);
                                 return {
                                     code: response_code.SUCCESS,
@@ -391,7 +392,7 @@ class UserModel{
                                     }
                                 };
 
-                            } else{
+                            } else {
                                 return {
                                     code: response_code.OPERATION_FAILED,
                                     message: t('error_updating_order'),
@@ -399,7 +400,7 @@ class UserModel{
                                 }
                             }
 
-                        } else{
+                        } else {
                             return {
                                 code: response_code.OPERATION_FAILED,
                                 message: t('error_adding_order_details'),
@@ -407,21 +408,21 @@ class UserModel{
                             }
                         }
                     }
-                } else{
+                } else {
                     return {
                         code: response_code.OPERATION_FAILED,
                         message: t('error_adding_order_data'),
                         data: null
                     }
                 }
-            } else{
+            } else {
                 return {
                     code: response_code.NOT_FOUND,
                     message: t("no_data_provided_to_place_order"),
                     data: null
                 }
             }
-        } catch(error){
+        } catch (error) {
             console.log(error.message);
             return {
                 code: response_code.OPERATION_FAILED,
@@ -431,18 +432,18 @@ class UserModel{
         }
     }
 
-    async product_listing(){
-        try{
+    async product_listing() {
+        try {
             const [products] = await database.query(`SELECT p.product_id, p.product_name, p.product_price, pi.image_name,c.category_name FROM tbl_products p left JOIN tbl_product_images pi ON p.product_id = pi.product_id left join tbl_category c on c.category_id = p.category_id;`);
 
-            if(products && products != null && products.length > 0){
+            if (products && products != null && Array.isArray(products) && products.length > 0) {
                 return {
                     code: response_code.SUCCESS,
                     message: "Products Found",
                     data: products
                 }
 
-            } else{
+            } else {
                 return {
                     code: response_code.NOT_FOUND,
                     message: "Products Not Found",
@@ -450,6 +451,162 @@ class UserModel{
                 }
             }
 
+        } catch (error) {
+            console.log(error.message);
+            return {
+                code: response_code.OPERATION_FAILED,
+                message: "Internal Server Error",
+                data: null
+            }
+        }
+    }
+
+    async get_product_by_id(id) {
+        try {
+            const product_id = id;
+
+            const [products] = await database.query(`SELECT p.product_id, p.product_name, p.product_price, p.product_description, pi.image_name,c.category_name FROM tbl_products p left JOIN tbl_product_images pi ON p.product_id = pi.product_id left join tbl_category c on c.category_id = p.category_id where p.product_id = ?;`, [product_id]);
+
+            if (products && products != null && Array.isArray(products) && products.length > 0) {
+                const product = {
+                    product_id: products[0].product_id,
+                    name: products[0].product_name,
+                    price: products[0].product_price,
+                    description: products[0].product_description,
+                    images: products.map(row => row.image_name)
+                };
+
+                return {
+                    code: response_code.SUCCESS,
+                    message: t('product_found_successfully'),
+                    data: product
+                };
+            } else {
+                return {
+                    code: response_code.NOT_FOUND,
+                    message: "Product Not Found",
+                    data: null
+                }
+            }
+
+        } catch (error) {
+            console.log(error.message);
+            return {
+                code: response_code.OPERATION_FAILED,
+                message: "Internal Server Error",
+                data: null
+            }
+        }
+    }
+
+    async prod_filtering(request_data) {
+        try {
+            let page = (request_data.page && request_data.page > 0) ? request_data.page : 1;
+            const limit = 10;
+            const start = (page - 1) * limit;
+
+            let conditions = [];
+
+            if (request_data.category && Array.isArray(request_data.category) && request_data.category.length > 0) {
+                conditions.push(`p.category_id IN (${request_data.category.join(",")})`);
+            }
+            if (request_data.search && request_data.search.trim() !== '') {
+                conditions.push(`(p.product_name LIKE '%${request_data.search.trim()}%')`);
+            }
+
+            if (request_data.max_price) {
+                const maxPrice = request_data.max_price;
+                conditions.push(`p.product_price < ${maxPrice}`);
+            }
+
+            conditions.push("p.is_deleted = 0");
+
+            const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+            const [data] = await database.query(`SELECT 
+                p.product_id, 
+                p.product_name, 
+                p.product_price, 
+                p.product_description,
+                GROUP_CONCAT(DISTINCT pi.image_name SEPARATOR ',') AS images,
+                c.category_name,
+                c.category_id
+                FROM tbl_products p
+                LEFT JOIN tbl_product_images pi ON p.product_id = pi.product_id 
+                    AND (pi.is_deleted = 0 OR pi.is_deleted IS NULL)
+                LEFT JOIN tbl_category c ON c.category_id = p.category_id
+                ${whereClause}
+                GROUP BY p.product_id, p.product_name, p.product_price, p.product_description, c.category_name, c.category_id
+                LIMIT ?, ?`, [start, limit]);
+
+            if (data && Array.isArray(data) && data.length > 0) {
+
+                return {
+                    code: response_code.SUCCESS,
+                    message: t('data_found'),
+                    data: data
+                }
+
+            } else {
+                return {
+                    code: response_code.NOT_FOUND,
+                    message: t('no_products_found'),
+                    data: null
+                }
+            }
+
+        } catch (error) {
+            console.log(error.message);
+            return {
+                code: response_code.OPERATION_FAILED,
+                message: "Internal Server Error",
+                data: null
+            }
+        }
+    }
+
+    async user_information(user_id){
+        try{
+            if(user_id){
+                const [data] = await database.query(`select full_name, email_id, code_id, phone_number, about from tbl_user where user_id = ?`, [user_id]);
+
+                if(data && Array.isArray(data) && data.length > 0){
+                    var order_data = await common.get_order_details(user_id);
+                    let response_data = {
+                        full_name: data[0].full_name,
+                        email_id: data[0].email_id,
+                        code_id: data[0].code_id,
+                        phone_number: data[0].phone_number,
+                        about: data[0].about
+                    };
+
+                    if(order_data){
+                        response_data.orders = order_data;
+                    } else{
+                        response_data.orders = []
+                    }
+
+                    return {
+                        code: response_code.SUCCESS,
+                        message: t('user_found'),
+                        data: response_data
+                    }
+
+                } else{
+                    return {
+                        code: response_code.NOT_FOUND,
+                        message: t('user_not_found'),
+                        data: null
+                    }
+                }
+            } else{
+                return {
+                    code: response_code.OPERATION_FAILED,
+                    message: t('invalid_user_id'),
+                    data: null
+                }
+            }
+
         } catch(error){
             console.log(error.message);
             return {
@@ -459,6 +616,8 @@ class UserModel{
             }
         }
     }
+
+    
 }
 
 module.exports = new UserModel();
