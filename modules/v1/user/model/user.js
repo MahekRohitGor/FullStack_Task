@@ -13,7 +13,7 @@ const { t } = require('localizify');
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const moment = require('moment');
-const { response } = require("../../../../../../HLIS/NodeExam27/utilities/common");
+// const { response } = require("../../../../../../HLIS/NodeExam27/utilities/common");
 
 
 class UserModel {
@@ -123,13 +123,21 @@ class UserModel {
 
             if (not_existing_user) {
                 return {
-                    code: response_code.SUCCESS,
+                    code: response_code.OPERATION_FAILED,
                     message: t('invalid_email'),
                     data: null
                 }
             } else {
+                const is_login = await common.check_user_login(request_data.email_id);
+                if(is_login){
+                    return {
+                        code: response_code.OPERATION_FAILED,
+                        message: t('already_login'),
+                        data: null
+                    }
+                }
+                
                 const userDetails = await common.getUser(request_data.email_id);
-
                 if (bcrypt.compareSync(request_data.password_, userDetails.password_)) {
                     if (userDetails.is_active == 1) {
                         const user_token = jwt.sign(
@@ -630,7 +638,7 @@ class UserModel {
                 updated_fields.about = request_data.about;
             }
 
-            if(Object.keys(updated_fields) === 0){
+            if(Object.keys(updated_fields).length === 0){
                 return {
                     code: response_code.OPERATION_FAILED,
                     message: t("no_data_provided_for_update"),

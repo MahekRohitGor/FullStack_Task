@@ -31,6 +31,18 @@ const rules = {
         full_name: "string",
         profile_pic: "string",
         about: "string"
+    },
+    create_products: {
+        product_name: "required|string",
+        product_price: "required|numeric",
+        product_description: "required|string",
+        image_name: "required|string",
+        category_id: "required|numeric"
+    },
+    edit_products: {
+        product_name: "string",
+        product_price: "nullable|numeric",
+        product_description: "string"
     }
 }
 

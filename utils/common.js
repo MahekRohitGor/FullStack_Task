@@ -100,6 +100,34 @@ class Common {
         }
     }
 
+    async check_user_login(email){
+        try{
+            const [results] = await database.query(`SELECT user_id from tbl_user where email_id = ? and is_active = 1 and is_deleted = 0 and is_login = 1`, [email]);
+            if(results && Array.isArray(results) && results.length > 0 && results[0] !== null && results[0].user_id){
+                return true;
+            } else {
+                return false;
+            }
+        } catch(error){
+            console.log(error.message);
+            return false
+        }
+    }
+
+    async check_admin_login(email){
+        try{
+            const [results] = await database.query(`SELECT admin_id from tbl_admin where email_id = ? and is_active = 1 and is_deleted = 0 and is_login = 1`, [email]);
+            if(results && Array.isArray(results) && results.length > 0 && results[0].admin_id){
+                return true;
+            } else {
+                return false;
+            }
+        } catch(error){
+            console.log(error.message);
+            return false
+        }
+    }
+
     async insert_device(data){
         try{
             const [resp] = await database.query(`INSERT INTO tbl_device_info SET ?`, data);
@@ -113,6 +141,16 @@ class Common {
     async get_user_info(user_id){
         try{
             const [res] = await database.query(`SELECT u.user_id, u.full_name, u.email_id, d.device_type FROM tbl_user AS u LEft JOIN tbl_device_info AS d ON u.user_id = d.user_id WHERE u.user_id = ? AND u.is_active = 1 AND u.is_deleted = 0`, [user_id]);
+            return res[0];
+        } catch(error){
+            console.log(error.message);
+            return false;
+        }
+    }
+
+    async get_admin_info(user_id){
+        try{
+            const [res] = await database.query(`SELECT email_id, admin_id, profile_pic, `, [user_id]);
             return res[0];
         } catch(error){
             console.log(error.message);
@@ -144,9 +182,33 @@ class Common {
         }
     }
 
+    async getAdmin(email_id){
+        try{
+            const [res] = await database.query(`SELECT admin_id, email_id, password_, is_active FROM tbl_admin WHERE email_id = ? AND is_active = 1 AND is_deleted = 0`, [email_id]);
+            if (res.length > 0) {
+                return res[0];
+            } else {
+                return false;
+            }
+        } catch(error){
+            console.log(error);
+            return false;
+        }
+    }
+
     async updateUserData(user_id, data) {
         try {
             const [result] = await database.query(`UPDATE tbl_user SET ? WHERE user_id = ?`, [data, user_id]);
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.log(error.message);
+            return false;
+        }
+    }
+
+    async updateAdminData(admin_id, data) {
+        try {
+            const [result] = await database.query(`UPDATE tbl_admin SET ? WHERE admin_id = ?`, [data, admin_id]);
             return result.affectedRows > 0;
         } catch (error) {
             console.log(error.message);

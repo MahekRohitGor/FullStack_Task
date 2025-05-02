@@ -3,6 +3,15 @@ const algorithm = 'AES-256-CBC';
 const key = Buffer.from("4fa3c5b6f6a8318be1e0f1e342a1c2a9569f85f74f4dbf37e70ac925ca78e147", 'hex');
 const iv = Buffer.from("15a8f725eab7c3d34cc4e1a6e8aa1f9a", 'hex');
 
+const bcrypt = require('bcrypt');
+
+const plain = 'adminstrong1234';
+const hash = '$2b$10$5YLSt3NhTskAhfsVAcx89Ozx67ZJoEN9HKkWOOa.Ex9b/.hQ.FmTa';
+
+const match = bcrypt.compareSync(plain, hash);
+// const enc = bcrypt.hashSync(plain, 10)
+console.log('Match:', match);
+
 function encrypt(text) {
   const cipher = crypto.createCipheriv(algorithm, key, iv);
   let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -18,19 +27,21 @@ function decrypt(encrypted) {
 }
 
 // const encrypted = encrypt(`{
-//   "payment_type": "cod",
-//   "address_id": 2
+//   "email_id": "admin@example.com",
+//   "password_": "adminstrong1234"
 // }`);
 
 const encrypted = encrypt(`{
-    "full_name": "Mahek Goorrrr",
-    "profile_pic": "mahek_profile.jpg",
-    "about": "Passionate developer and designer."
+  "product_name": "Eco-Friendlyyy Water Bottle",
+  "product_price": 2999,
+  "product_description": "A reusable waterrr bottle made from BPA-free materials.",
+  "image_name": "https://placehold.co/600x400",
+  "category_id": 1
 }
 `);
 
 
-const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea707ea174ee50e0625f540ccfad04f9bc76cf2c092423929df5cb477d35afeb7ce2ce28ec3ff2bf7db5f4429e0370f2ea7`);
+const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea704b833291c6783be3aee971d1f3c07bfdd9139d08ea6244a6828522710a0bb15b5f01602d10006ded2f035bda133b726`);
 
 console.log('Encrypted:', encrypted);
 console.log('Decrypted:', decrypted);
