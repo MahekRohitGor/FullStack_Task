@@ -75,9 +75,9 @@ class HeaderAuth{
                         const decoded = await headObj.getUserFromToken(token);
 
                         if (req.requestedModule === 'admin') {
-                            req.owner_id = decoded.admin_id
+                            req.owner_id = decoded.id
                         } else {
-                            req.owner_id = decoded.user_id;
+                            req.owner_id = decoded.id;
                         }
                         req.owner = decoded;
                         next();

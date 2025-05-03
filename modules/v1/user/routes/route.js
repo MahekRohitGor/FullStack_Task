@@ -14,6 +14,9 @@ const user = (app) => {
     app.post("/v1/user/filter", users.filter);
     app.get("/v1/user/info", users.user_info);
     app.post("/v1/user/edit", users.edit_profile);
+
+    app.get("/v1/user/delivery-address", users.get_delivery_address);
+    app.get("/v1/user/cart-details", users.add_to_cart_details);
 }
 
 module.exports = user;

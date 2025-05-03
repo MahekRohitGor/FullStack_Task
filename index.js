@@ -4,8 +4,9 @@ const app = express();
 const app_routing = require("./modules/app-routing");
 // const validator = require("./middlewares/validator");
 const headerAuth = require("./middlewares/header-auth");
+const cors = require("cors");
 
-
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.text());
 

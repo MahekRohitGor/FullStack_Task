@@ -442,7 +442,7 @@ class UserModel {
 
     async product_listing() {
         try {
-            const [products] = await database.query(`SELECT p.product_id, p.product_name, p.product_price, pi.image_name,c.category_name FROM tbl_products p left JOIN tbl_product_images pi ON p.product_id = pi.product_id left join tbl_category c on c.category_id = p.category_id;`);
+            const [products] = await database.query(`SELECT p.product_id, p.product_name, p.product_price, pi.image_name,c.category_name FROM tbl_products p left JOIN tbl_product_images pi ON p.product_id = pi.product_id left join tbl_category c on c.category_id = p.category_id where p.is_deleted = 0;`);
 
             if (products && products != null && Array.isArray(products) && products.length > 0) {
                 return {
@@ -481,7 +481,8 @@ class UserModel {
                     name: products[0].product_name,
                     price: products[0].product_price,
                     description: products[0].product_description,
-                    images: products.map(row => row.image_name)
+                    images: products[0].image_name,
+                    category_name: products[0].category_name
                 };
 
                 return {
@@ -662,6 +663,61 @@ class UserModel {
                 }
             }
 
+        } catch(error){
+            console.log(error.message);
+            return {
+                code: response_code.OPERATION_FAILED,
+                message: "Internal Server Error",
+                data: null
+            }
+        }
+    }
+
+    async get_delivery_address(user_id){
+        try{
+            const [address_result] = await database.query(`select address_id, address_line, city, state, pincode, country from tbl_user_delivery_address where user_id = ? and is_deleted = 0;`, [user_id]);
+            if(address_result && address_result.length > 0){
+                return {
+                    code: response_code.SUCCESS,
+                    message: t('delivery_address_found'),
+                    data: address_result
+                }
+            } else{
+                return {
+                    code: response_code.NOT_FOUND,
+                    message: t('delivery_address_not_found'),
+                    data: null
+                }
+            }
+        } catch(error){
+            console.log(error.message);
+            return {
+                code: response_code.OPERATION_FAILED,
+                message: "Internal Server Error",
+                data: null
+            }
+        }
+    }
+
+    async add_to_cart_details(user_id){
+        try{
+            const [cart_res] = await database.query(`select p.product_name, p.product_price, p.product_description, c.qty
+                                                        from tbl_cart c inner join tbl_products p on c.product_id = p.product_id 
+                                                        inner join tbl_user u on u.user_id = c.user_id
+                                                        where u.user_id = ?;`, [user_id]);
+            if(cart_res && cart_res.length > 0){
+                return {
+                    code: response_code.SUCCESS,
+                    message: t('cart_details_found'),
+                    data: cart_res
+                }
+            } else{
+                return {
+                    code: response_code.NOT_FOUND,
+                    message: t('cart_details_not_found'),
+                    data: null
+                }
+            }
         } catch(error){
             console.log(error.message);
             return {

@@ -94,6 +94,7 @@ class User {
         try {
             const requested_data = req.body;
             const user_id = req.owner_id;
+            console.log(user_id);
             const request_data = common.decrypt(requested_data);
 
             const rules = vrules.add_to_cart;
@@ -253,6 +254,38 @@ class User {
 
         } catch (error) {
             console.error("Edit Profile Error:", error);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
+    async get_delivery_address(req,res){
+        try{
+            const user_id = req.owner_id;
+            const response = await user.get_delivery_address(user_id);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+        } catch(error){
+            console.error("Delivery Address Error:", error);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
+    async add_to_cart_details(req,res){
+        try{
+            const user_id = req.owner_id;
+            const response = await user.add_to_cart_details(user_id);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+        } catch(error){
+            console.error("Add to Cart Details Error:", error);
             return common.sendEncryptedResponse(
                 res,
                 response_code.INTERNAL_SERVER_ERROR,
