@@ -111,20 +111,52 @@ class Admin {
         }
     }
 
-     async product_listing(req, res) {
-            try {
-                const response = await admin.product_listing();
-                await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
-            } catch (error) {
-                console.error("Get Order Error:", error.message);
-                return common.sendEncryptedResponse(
-                    res,
-                    response_code.INTERNAL_SERVER_ERROR,
-                    t("internal_server_error") || "Something went wrong, please try again later.",
-                    {}
-                );
-            }
+    async product_listing(req, res) {
+        try {
+            const response = await admin.product_listing();
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+        } catch (error) {
+            console.error("Get Order Error:", error.message);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
         }
+    }
+
+    async delete_products(req, res) {
+        try {
+            const requested_data = req.body;
+            const request_data = common.decrypt(requested_data);
+
+            const rules = vrules.delete_products;
+            const message = {
+                numeric: t('must_be_numeric'),
+                required: t('required')
+            };
+
+            const keywords = {
+                'product_id': t('rest_keywords_product_id')
+            };
+
+            const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+            if (!isValid) return;
+
+            const response = await admin.delete_product(request_data);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+
+        } catch (error) {
+            console.error("Delete Product Error:", error);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
 }
 
 module.exports = new Admin();

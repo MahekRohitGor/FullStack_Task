@@ -208,11 +208,22 @@ class AdminModel {
                     data: null
                 }
             } else{
-                const data = await common.get_products_info(request_data.product_id);
-                
+                const data = await common.get_products_info(request_data.product_id);   
                 if(data){
                     const [res] = await database.query(`UPDATE tbl_products SET is_deleted = 1 where product_id = ?`, [request_data.product_id]);
-
+                    if(res.affectedRows > 0){
+                        return {
+                            code: response_code.SUCCESS,
+                            message: t('delete_success'),
+                            data: request_data.product_id
+                        }
+                    } else{
+                        return {
+                            code: response_code.OPERATION_FAILED,
+                            message: t('delete_failed'),
+                            data: null
+                        }
+                    }
                 } else{
                     return {
                         code: response_code.NOT_FOUND,

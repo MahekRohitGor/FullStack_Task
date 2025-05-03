@@ -1,4 +1,5 @@
 const { add_to_cart } = require("../../../HLIS/NodeExam27/modules/v1/user/models/user_model");
+const { delete_product } = require("./v1/admin/model/admin");
 
 const rules = {
     signup: {
@@ -43,6 +44,9 @@ const rules = {
         product_name: "string",
         product_price: "nullable|numeric",
         product_description: "string"
+    },
+    delete_products: {
+        product_id: "required|numeric"
     }
 }
 

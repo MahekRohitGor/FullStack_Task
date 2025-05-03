@@ -32,16 +32,12 @@ function decrypt(encrypted) {
 // }`);
 
 const encrypted = encrypt(`{
-  "product_name": "Eco-Friendlyyy Water Bottle",
-  "product_price": 2999,
-  "product_description": "A reusable waterrr bottle made from BPA-free materials.",
-  "image_name": "https://placehold.co/600x400",
-  "category_id": 1
+  "product_id": 6
 }
 `);
 
 
-const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea704b833291c6783be3aee971d1f3c07bfdd9139d08ea6244a6828522710a0bb15b5f01602d10006ded2f035bda133b726`);
+const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea704b833291c6783be3aee971d1f3c07bfe4edba14403708b7c97bb388f2771b195826d994a4a402614feb75304bf98eb9`);
 
 console.log('Encrypted:', encrypted);
 console.log('Decrypted:', decrypted);

@@ -6,6 +6,7 @@ const admin = (app) => {
     app.post("/v1/admin/edit-prod", admins.edit_products);
 
     app.get("/v1/admin/products", admins.product_listing);
+    app.post("/v1/admin/delete-product", admins.delete_products);
 }
 
 module.exports = admin;
