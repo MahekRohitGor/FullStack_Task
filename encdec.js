@@ -32,12 +32,13 @@ function decrypt(encrypted) {
 // }`);
 
 const encrypted = encrypt(`{
-  "product_id": 6
+  "order_id": 1,
+  "status": "processed"
 }
 `);
 
 
-const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea704b833291c6783be3aee971d1f3c07bfe4edba14403708b7c97bb388f2771b195826d994a4a402614feb75304bf98eb9`);
+const decrypted = decrypt(`f7c448ea191861b183bc830c6a482ea75fb07e3f2aedf7fa6bd463e3b1a53973a1a27a703ecc60ef70d8a294dc767c60f8bad910513d0314bb25756b7c11c35c`);
 
 console.log('Encrypted:', encrypted);
 console.log('Decrypted:', decrypted);

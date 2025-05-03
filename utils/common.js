@@ -336,6 +336,20 @@ class Common {
         }
     }
 
+    async get_order_by_id(order_id){
+        try{
+            const [orders] = await database.query(`SELECT order_id, order_num, status, grand_total from tbl_order where order_id = ?`, [order_id]);
+            if(orders && orders.length > 0){
+                return orders[0];
+            } else{
+                return false;
+            }
+        } catch(error){
+            console.log(error.message);
+            return false;
+        }
+    }
+
 }
 
 module.exports = new Common()

@@ -85,13 +85,15 @@ class Admin {
             const rules = vrules.edit_products;
             const message = {
                 string: t('must_be_string'),
-                numeric: t('must_be_numeric')
+                numeric: t('must_be_numeric'),
+                required: t('required')
             };
 
             const keywords = {
                 'product_name': t('rest_keywords_product_name'),
                 'product_price': t('rest_keywords_product_price'),
-                'product_description': t('rest_keywords_product_description')
+                'product_description': t('rest_keywords_product_description'),
+                'product_id': t('rest_keywords_product_id')
             };
 
             const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
@@ -149,6 +151,59 @@ class Admin {
 
         } catch (error) {
             console.error("Delete Product Error:", error);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
+    async show_orders(req, res) {
+        try {
+            const requested_data = req.body;
+            const request_data = common.decrypt(requested_data);
+
+            const response = await admin.show_orders(request_data);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+        } catch (error) {
+            console.error("Delete Product Error:", error);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
+    async update_status(req, res) {
+        try {
+            const requested_data = req.body;
+            const request_data = common.decrypt(requested_data);
+
+            const rules = vrules.update_status;
+            const message = {
+                numeric: t('must_be_numeric'),
+                required: t('required'),
+                string: t('must_be_string'),
+                in: t('invalid_value_provided')
+            };
+
+            const keywords = {
+                'order_id': t('rest_keywords_product_id'),
+                'status': t('rest_keywords_status')
+            };
+
+            const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+            if (!isValid) return;
+
+            const response = await admin.update_status(request_data);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+
+        } catch (error) {
+            console.error("UPDATE STATUS ERROR:", error);
             return common.sendEncryptedResponse(
                 res,
                 response_code.INTERNAL_SERVER_ERROR,

@@ -43,10 +43,15 @@ const rules = {
     edit_products: {
         product_name: "string",
         product_price: "nullable|numeric",
-        product_description: "string"
+        product_description: "string",
+        product_id: "required"
     },
     delete_products: {
         product_id: "required|numeric"
+    },
+    update_status: {
+        order_id: "required|numeric",
+        status: "required|string|in:processed,shipped,completed,failed"
     }
 }
 
