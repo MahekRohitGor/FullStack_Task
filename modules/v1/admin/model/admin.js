@@ -172,7 +172,7 @@ class AdminModel {
 
     async product_listing() {
         try {
-            const [products] = await database.query(`SELECT p.product_id, p.product_name, p.product_price, pi.image_name,c.category_name FROM tbl_products p left JOIN tbl_product_images pi ON p.product_id = pi.product_id left join tbl_category c on c.category_id = p.category_id where p.is_deleted = 0;`);
+            const [products] = await database.query(`SELECT p.product_id, p.product_name, p.product_price, p.product_description, pi.image_name,c.category_name FROM tbl_products p left JOIN tbl_product_images pi ON p.product_id = pi.product_id left join tbl_category c on c.category_id = p.category_id where p.is_deleted = 0;`);
 
             if (products && products != null && Array.isArray(products) && products.length > 0) {
                 return {
