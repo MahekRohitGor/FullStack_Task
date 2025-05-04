@@ -52,6 +52,13 @@ const rules = {
     update_status: {
         order_id: "required|numeric",
         status: "required|string|in:processed,shipped,completed,failed"
+    },
+    add_address: {
+        address_line: "required|string",
+        city: "required|string",
+        state: "required|string",
+        pincode: "required|string",
+        country: "required|string"
     }
 }
 

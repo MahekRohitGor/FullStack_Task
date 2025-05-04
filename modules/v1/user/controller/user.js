@@ -295,6 +295,58 @@ class User {
         }
     }
 
+    async add_delivery_address(req,res){
+        try{
+            const requested_data = req.body;
+            const user_id = req.owner_id;
+            const request_data = common.decrypt(requested_data);
+
+            const rules = vrules.add_address;
+            const message = {
+                string: t('must_be_string'),
+                required: t('required')
+            };
+
+            const keywords = {
+                'address_line': t('rest_keywords_address_line'),
+                'city': t('rest_keywords_city'),
+                'state': t('rest_keywords_state'),
+                'pincode': t('rest_keywords_pincode'),
+                'country': t('country')
+            };
+
+            const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+            if (!isValid) return;
+
+            const response = await user.add_delivery_address(request_data, user_id);
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+
+        } catch (error) {
+            console.error("Add Delivery Address Error:", error);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
+    async get_categories(req,res){
+        try{
+            const response = await user.get_categories();
+            await common.sendEncryptedResponse(res, response_code.SUCCESS, response.message, response.data);
+        } catch(error){
+            console.error("Get Categories Error:", error);
+            return common.sendEncryptedResponse(
+                res,
+                response_code.INTERNAL_SERVER_ERROR,
+                t("internal_server_error") || "Something went wrong, please try again later.",
+                {}
+            );
+        }
+    }
+
 }
 
 module.exports = new User();

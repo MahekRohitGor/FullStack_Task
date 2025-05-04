@@ -214,6 +214,7 @@ class UserModel {
 
     async logout(user_id) {
         try {
+            console.log(user_id);
             const user_data = await common.get_user_info(user_id);
             if (user_data) {
                 const device_data = await common.get_device_data(user_id);
@@ -723,6 +724,67 @@ class UserModel {
             return {
                 code: response_code.OPERATION_FAILED,
                 message: "Internal Server Error",
+                data: null
+            }
+        }
+    }
+
+    async add_delivery_address(request_data, user_id){
+        try{
+            const delivery_address_data = {
+                address_line: request_data?.address_line || "",
+                city: request_data?.city || "",
+                state: request_data?.state || "",
+                pincode: request_data?.pincode || "",
+                country: request_data?.country || "",
+                user_id: user_id
+            }
+
+            const [resp] = await database.query(`INSERT INTO tbl_user_delivery_address SET ?`, [delivery_address_data]);
+            if(resp.affectedRows > 0){
+                return {
+                    code: response_code.SUCCESS,
+                    message: t('data_insert_success'),
+                    data: resp.insertId
+                }
+            } else{
+                return {
+                    code: response_code.OPERATION_FAILED,
+                    message: t('data_failed_to_insert'),
+                    data: null
+                }
+            }
+
+        } catch(error){
+            console.log(error.message);
+            return {
+                code: response_code.OPERATION_FAILED,
+                message: "Internal Server Error - Delivery Address Add Error",
+                data: null
+            }
+        }
+    }
+
+    async get_categories(){
+        try{
+            const [categories] = await database.query(`SELECT category_id, category_name from tbl_category where is_deleted = 0`);
+            if(categories && categories.length > 0){
+                return {
+                    code: response_code.SUCCESS,
+                    message: t('cateogries_found'),
+                    data: categories
+                }
+            } else{
+                return {
+                    code: response_code.NOT_FOUND,
+                    message: t('cateogories_not_found'),
+                    data: null
+                }
+            }
+        } catch(error){
+            return {
+                code: response_code.OPERATION_FAILED,
+                message: t('data_failed_to_insert'),
                 data: null
             }
         }
